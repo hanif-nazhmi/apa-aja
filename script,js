@@ -1,1 +1,240 @@
+document.addEventListener('DOMContentLoaded', () => {
+    /* ==========================================
+       1. ENTERING ANIMATION (PRELOADER)
+    ========================================== */
+    const preloader = document.getElementById('preloader');
+    const loadPercent = document.getElementById('load-percent');
+    const enterBtn = document.getElementById('enter-btn');
+    
+    let progress = 0;
+    const bootInterval = setInterval(() => {
+        progress += Math.floor(Math.random() * 14) + 5;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(bootInterval);
+            loadPercent.textContent = '100%';
+            enterBtn.classList.remove('hidden');
+        } else {
+            loadPercent.textContent = `${progress}%`;
+        }
+    }, 75);
 
+    enterBtn.addEventListener('click', () => {
+        preloader.classList.add('fade-out');
+        document.body.classList.add('loaded');
+    });
+
+    /* ==========================================
+       2. MANUAL AUDIO LOADER & REAL-TIME ANALYSER
+    ========================================== */
+    const manualAudioInput = document.getElementById('manual-audio-input');
+    const loadTrackBtn = document.getElementById('load-track-btn');
+    const uploadNavBtn = document.getElementById('upload-nav-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const vinyl = document.getElementById('vinyl');
+    const deckStatus = document.getElementById('deck-status');
+    const currentTrackTitle = document.getElementById('current-track-title');
+    const timeDisplay = document.getElementById('time-display');
+    const progressContainer = document.getElementById('progress-container');
+    const progressFill = document.getElementById('progress-fill');
+    const volumeSlider = document.getElementById('volume-slider');
+    const assignBtns = document.querySelectorAll('.assign-audio-btn');
+
+    const audioPlayer = new Audio();
+    audioPlayer.crossOrigin = 'anonymous';
+    audioPlayer.volume = 0.8;
+
+    let audioCtx = null;
+    let analyser = null;
+    let dataArray = null;
+    let sourceNode = null;
+    let currentObjectURL = null;
+    let selectedProjectContext = null;
+
+    function setupAudioContext() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 128;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            sourceNode = audioCtx.createMediaElementSource(audioPlayer);
+            sourceNode.connect(analyser);
+            analyser.connect(audioCtx.destination);
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function triggerFilePicker(projectName = null) {
+        selectedProjectContext = projectName;
+        manualAudioInput.click();
+    }
+
+    loadTrackBtn.addEventListener('click', () => triggerFilePicker(null));
+    uploadNavBtn.addEventListener('click', () => triggerFilePicker(null));
+
+    assignBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parentItem = btn.closest('.track-item');
+            document.querySelectorAll('.track-item').forEach(el => el.classList.remove('active-slot'));
+            parentItem.classList.add('active-slot');
+            
+            const projectName = parentItem.getAttribute('data-project');
+            triggerFilePicker(projectName);
+        });
+    });
+
+    manualAudioInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setupAudioContext();
+
+        if (currentObjectURL) {
+            URL.revokeObjectURL(currentObjectURL);
+        }
+
+        currentObjectURL = URL.createObjectURL(file);
+        audioPlayer.src = currentObjectURL;
+
+        const cleanFileName = file.name.replace(/\.[^/.]+$/, "");
+        if (selectedProjectContext) {
+            deckStatus.textContent = `PLAYING ON: ${selectedProjectContext.toUpperCase()}`;
+            currentTrackTitle.textContent = cleanFileName;
+        } else {
+            deckStatus.textContent = 'MANUAL TRACK LOADED';
+            currentTrackTitle.textContent = cleanFileName;
+        }
+
+        audioPlayer.play().then(() => {
+            updatePlayState(true);
+        }).catch(err => {
+            console.error('Playback error:', err);
+        });
+
+        manualAudioInput.value = '';
+    });
+
+    function updatePlayState(isPlaying) {
+        if (isPlaying) {
+            playPauseBtn.textContent = '❚❚ PAUSE';
+            vinyl.classList.add('spinning');
+        } else {
+            playPauseBtn.textContent = '▶ PLAY';
+            vinyl.classList.remove('spinning');
+        }
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+        if (!audioPlayer.src) {
+            triggerFilePicker(null);
+            return;
+        }
+        setupAudioContext();
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            updatePlayState(true);
+        } else {
+            audioPlayer.pause();
+            updatePlayState(false);
+        }
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+        updatePlayState(false);
+        progressFill.style.width = '0%';
+    });
+
+    volumeSlider.addEventListener('input', (e) => {
+        audioPlayer.volume = parseFloat(e.target.value);
+    });
+
+    function formatTime(sec) {
+        if (isNaN(sec)) return '00:00';
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    audioPlayer.addEventListener('timeupdate', () => {
+        const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
+        progressFill.style.width = `${percent}%`;
+        timeDisplay.textContent = `${formatTime(audioPlayer.currentTime)} / ${formatTime(audioPlayer.duration)}`;
+    });
+
+    progressContainer.addEventListener('click', (e) => {
+        if (!audioPlayer.duration) return;
+        const rect = progressContainer.getBoundingClientRect();
+        const clickRatio = (e.clientX - rect.left) / rect.width;
+        audioPlayer.currentTime = clickRatio * audioPlayer.duration;
+    });
+
+    /* ==========================================
+       3. REAL-TIME FREQUENCY VISUALIZER CANVAS
+    ========================================== */
+    const canvas = document.getElementById('visualizer-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    function resizeCanvas() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let idlePhase = 0;
+
+    function renderVisualizer() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Grid futuristik tipis
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.03)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < width; x += 65) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+
+        // Jika lagu sedang diputar, gambar spektrum frekuensi asli dari lagu manual
+        if (analyser && !audioPlayer.paused) {
+            analyser.getByteFrequencyData(dataArray);
+            const barCount = dataArray.length;
+            const barWidth = (width / barCount) * 1.4;
+            let x = 0;
+
+            for (let i = 0; i < barCount; i++) {
+                const barHeight = (dataArray[i] / 255) * (height * 0.42);
+                const gradient = ctx.createLinearGradient(0, height, 0, height - barHeight);
+                gradient.addColorStop(0, 'rgba(188, 19, 254, 0.35)');
+                gradient.addColorStop(1, 'rgba(0, 243, 255, 0.55)');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, height - barHeight, barWidth - 3, barHeight);
+                x += barWidth;
+            }
+        } else {
+            // Animasi gelombang standby jika belum ada lagu diputar
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.18)';
+            ctx.lineWidth = 2;
+            for (let x = 0; x < width; x += 5) {
+                const y = (height * 0.78) + Math.sin(x * 0.008 + idlePhase) * 18 * Math.sin((x / width) * Math.PI);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            idlePhase += 0.03;
+        }
+
+        requestAnimationFrame(renderVisualizer);
+    }
+
+    renderVisualizer();
+});
