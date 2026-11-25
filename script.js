@@ -1,6 +1,6 @@
 (function () {
     /* ==========================================
-       1. ENTERING ANIMATION (LANGSUNG JALAN)
+       1. ENTERING ANIMATION (ANTI-MACET)
     ========================================== */
     const preloader = document.getElementById('preloader');
     const loadPercent = document.getElementById('load-percent');
@@ -30,7 +30,6 @@
         }
     }, 60);
 
-    // Pengaman ganda
     setTimeout(closePreloader, 1600);
 
     /* ==========================================
@@ -41,6 +40,7 @@
     const uploadNavBtn = document.getElementById('upload-nav-btn');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const vinyl = document.getElementById('vinyl');
+    const cyberEmblem = document.getElementById('cyber-emblem');
     const deckStatus = document.getElementById('deck-status');
     const currentTrackTitle = document.getElementById('current-track-title');
     const timeDisplay = document.getElementById('time-display');
@@ -138,9 +138,11 @@
         if (isPlaying) {
             if (playPauseBtn) playPauseBtn.textContent = '❚❚ PAUSE';
             if (vinyl) vinyl.classList.add('spinning');
+            if (cyberEmblem) cyberEmblem.classList.add('music-active');
         } else {
             if (playPauseBtn) playPauseBtn.textContent = '▶ PLAY';
             if (vinyl) vinyl.classList.remove('spinning');
+            if (cyberEmblem) cyberEmblem.classList.remove('music-active');
         }
     }
 
