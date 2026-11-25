@@ -33,7 +33,87 @@
     setTimeout(closePreloader, 1600);
 
     /* ==========================================
-       2. MANUAL AUDIO LOADER & REAL-TIME ANALYSER
+       2. INDEXEDDB STORAGE (SIMPAN, RENAME, HAPUS LAGU)
+    ========================================== */
+    const DB_NAME = 'NazhmiSonicDB';
+    const STORE_NAME = 'savedTracks';
+    let db = null;
+
+    function openAudioDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, 1);
+            request.onupgradeneeded = (e) => {
+                const database = e.target.result;
+                if (!database.objectStoreNames.contains(STORE_NAME)) {
+                    database.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                resolve(db);
+            };
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    function saveTrackToDB(customName, blob, projectTag = '') {
+        return new Promise((resolve, reject) => {
+            if (!db) return reject('DB not initialized');
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const record = {
+                name: customName,
+                blob: blob,
+                project: projectTag,
+                createdAt: Date.now()
+            };
+            const req = store.add(record);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    function getAllTracksFromDB() {
+        return new Promise((resolve, reject) => {
+            if (!db) return resolve([]);
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const store = tx.objectStore(STORE_NAME);
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    function renameTrackInDB(id, newName) {
+        return new Promise((resolve, reject) => {
+            if (!db) return reject('DB not initialized');
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const getReq = store.get(id);
+            getReq.onsuccess = () => {
+                const data = getReq.result;
+                if (!data) return resolve();
+                data.name = newName;
+                const putReq = store.put(data);
+                putReq.onsuccess = () => resolve();
+                putReq.onerror = () => reject(putReq.error);
+            };
+        });
+    }
+
+    function deleteTrackFromDB(id) {
+        return new Promise((resolve, reject) => {
+            if (!db) return reject('DB not initialized');
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const req = store.delete(id);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    /* ==========================================
+       3. AUDIO PLAYER, LIBRARY UI & ANALYSER
     ========================================== */
     const manualAudioInput = document.getElementById('manual-audio-input');
     const loadTrackBtn = document.getElementById('load-track-btn');
@@ -48,6 +128,8 @@
     const progressFill = document.getElementById('progress-fill');
     const volumeSlider = document.getElementById('volume-slider');
     const assignBtns = document.querySelectorAll('.assign-audio-btn');
+    const savedTracksList = document.getElementById('saved-tracks-list');
+    const savedCount = document.getElementById('saved-count');
 
     const audioPlayer = new Audio();
     audioPlayer.volume = 0.8;
@@ -58,6 +140,7 @@
     let sourceNode = null;
     let currentObjectURL = null;
     let selectedProjectContext = null;
+    let activeTrackId = null;
 
     function setupAudioContext() {
         try {
@@ -78,6 +161,110 @@
             }
         } catch (err) {
             console.warn('AudioContext skipped:', err);
+        }
+    }
+
+    function playTrackRecord(record, autoPlay = true) {
+        if (!record || !record.blob) return;
+
+        if (currentObjectURL) {
+            URL.revokeObjectURL(currentObjectURL);
+        }
+
+        currentObjectURL = URL.createObjectURL(record.blob);
+        audioPlayer.src = currentObjectURL;
+        activeTrackId = record.id;
+
+        deckStatus.textContent = record.project
+            ? `PLAYING ON: ${record.project.toUpperCase()}`
+            : 'SAVED TRACK ACTIVE';
+        currentTrackTitle.textContent = record.name;
+
+        renderSavedLibrary();
+
+        if (autoPlay) {
+            setupAudioContext();
+            audioPlayer.play().then(() => {
+                updatePlayState(true);
+            }).catch(err => console.error('Playback error:', err));
+        }
+    }
+
+    async function renderSavedLibrary(autoLoadFirst = false) {
+        const tracks = await getAllTracksFromDB();
+        if (savedCount) savedCount.textContent = `${tracks.length} TRACK${tracks.length === 1 ? '' : 'S'}`;
+
+        if (!savedTracksList) return;
+        savedTracksList.innerHTML = '';
+
+        if (tracks.length === 0) {
+            savedTracksList.innerHTML = '<div class="empty-library">Belum ada lagu tersimpan. Klik "📂 TAMBAH LAGU".</div>';
+            return;
+        }
+
+        tracks.forEach(track => {
+            const item = document.createElement('div');
+            item.className = `saved-item ${track.id === activeTrackId ? 'playing-now' : ''}`;
+
+            const mainArea = document.createElement('div');
+            mainArea.className = 'saved-item-main';
+            mainArea.innerHTML = `
+                <span class="saved-play-icon">${track.id === activeTrackId && !audioPlayer.paused ? '❚❚' : '▶'}</span>
+                <span class="saved-item-title">${track.name}</span>
+                ${track.project ? `<span class="saved-item-tag">${track.project}</span>` : ''}
+            `;
+            mainArea.addEventListener('click', () => playTrackRecord(track, true));
+
+            const actions = document.createElement('div');
+            actions.className = 'saved-item-actions';
+
+            const renameBtn = document.createElement('button');
+            renameBtn.className = 'icon-btn rename-btn';
+            renameBtn.title = 'Ganti Nama Lagu';
+            renameBtn.textContent = '✎';
+            renameBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const updatedName = prompt('Masukkan nama baru untuk lagu ini:', track.name);
+                if (updatedName && updatedName.trim() !== '') {
+                    await renameTrackInDB(track.id, updatedName.trim());
+                    if (track.id === activeTrackId) {
+                        currentTrackTitle.textContent = updatedName.trim();
+                    }
+                    renderSavedLibrary();
+                }
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'icon-btn delete-btn';
+            deleteBtn.title = 'Hapus Lagu';
+            deleteBtn.textContent = '✕';
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm(`Hapus lagu "${track.name}" dari penyimpanan?`)) {
+                    await deleteTrackFromDB(track.id);
+                    if (track.id === activeTrackId) {
+                        audioPlayer.pause();
+                        audioPlayer.src = '';
+                        activeTrackId = null;
+                        deckStatus.textContent = 'NO DISC LOADED';
+                        currentTrackTitle.textContent = 'Masukkan lagu MP3/WAV manual...';
+                        progressFill.style.width = '0%';
+                        timeDisplay.textContent = '00:00 / 00:00';
+                        updatePlayState(false);
+                    }
+                    renderSavedLibrary();
+                }
+            });
+
+            actions.appendChild(renameBtn);
+            actions.appendChild(deleteBtn);
+            item.appendChild(mainArea);
+            item.appendChild(actions);
+            savedTracksList.appendChild(item);
+        });
+
+        if (autoLoadFirst && tracks.length > 0 && !activeTrackId) {
+            playTrackRecord(tracks[tracks.length - 1], false);
         }
     }
 
@@ -102,33 +289,21 @@
     });
 
     if (manualAudioInput) {
-        manualAudioInput.addEventListener('change', (e) => {
+        manualAudioInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            setupAudioContext();
+            const defaultName = file.name.replace(/\.[^/.]+$/, "");
+            const userCustomName = prompt('Beri nama untuk lagu ini:', defaultName);
+            const finalName = (userCustomName && userCustomName.trim() !== '') ? userCustomName.trim() : defaultName;
 
-            if (currentObjectURL) {
-                URL.revokeObjectURL(currentObjectURL);
+            const newId = await saveTrackToDB(finalName, file, selectedProjectContext || '');
+            const allTracks = await getAllTracksFromDB();
+            const savedRecord = allTracks.find(t => t.id === newId);
+
+            if (savedRecord) {
+                playTrackRecord(savedRecord, true);
             }
-
-            currentObjectURL = URL.createObjectURL(file);
-            audioPlayer.src = currentObjectURL;
-
-            const cleanFileName = file.name.replace(/\.[^/.]+$/, "");
-            if (selectedProjectContext) {
-                deckStatus.textContent = `PLAYING ON: ${selectedProjectContext.toUpperCase()}`;
-                currentTrackTitle.textContent = cleanFileName;
-            } else {
-                deckStatus.textContent = 'MANUAL TRACK LOADED';
-                currentTrackTitle.textContent = cleanFileName;
-            }
-
-            audioPlayer.play().then(() => {
-                updatePlayState(true);
-            }).catch(err => {
-                console.error('Playback error:', err);
-            });
 
             manualAudioInput.value = '';
         });
@@ -144,6 +319,7 @@
             if (vinyl) vinyl.classList.remove('spinning');
             if (cyberEmblem) cyberEmblem.classList.remove('music-active');
         }
+        renderSavedLibrary();
     }
 
     if (playPauseBtn) {
@@ -196,8 +372,13 @@
         });
     }
 
+    // Muat daftar lagu tersimpan saat website dibuka
+    openAudioDB().then(() => {
+        renderSavedLibrary(true);
+    }).catch(err => console.warn('IndexedDB unavailable:', err));
+
     /* ==========================================
-       3. REAL-TIME FREQUENCY VISUALIZER CANVAS
+       4. REAL-TIME FREQUENCY VISUALIZER CANVAS
     ========================================== */
     const canvas = document.getElementById('visualizer-canvas');
     if (canvas) {
