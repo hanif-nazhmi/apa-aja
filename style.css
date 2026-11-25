@@ -172,7 +172,7 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 100px 8% 50px;
+    padding: 105px 8% 50px;
 }
 
 .hero-grid {
@@ -221,7 +221,7 @@ body.loaded .hero-content {
     font-size: 1.12rem;
     color: var(--text-muted);
     max-width: 580px;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.2rem;
 }
 
 /* ==========================================
@@ -289,7 +289,6 @@ body.loaded .cyber-emblem-wrapper {
     animation: spinLeft 12s linear infinite;
 }
 
-/* Elemen Musik Cyber Mengorbit */
 .orbit-nodes {
     position: absolute;
     width: 265px;
@@ -317,7 +316,6 @@ body.loaded .cyber-emblem-wrapper {
 .node-3 { left: -17px; top: calc(50% - 17px); }
 .node-4 { right: -17px; top: calc(50% - 17px); border-color: var(--neon-purple); color: #e6a8ff; box-shadow: 0 0 14px var(--neon-purple); }
 
-/* Inti Inisial NAZHMI */
 .initial-core {
     position: relative;
     width: 155px;
@@ -375,7 +373,6 @@ body.loaded .cyber-emblem-wrapper {
 .mini-eq-bars i:nth-child(4) { height: 16px; animation-delay: 0.4s; }
 .mini-eq-bars i:nth-child(5) { height: 8px; animation-delay: 0.2s; }
 
-/* Saat lagu berputar, orbit berputar lebih cepat & menyala */
 .cyber-orbit-system.music-active .ring-middle {
     animation-duration: 3s;
     box-shadow: 0 0 35px rgba(0, 243, 255, 0.6);
@@ -557,6 +554,128 @@ body.loaded .cyber-emblem-wrapper {
     width: 70px;
     accent-color: var(--neon-cyan);
     cursor: pointer;
+}
+
+/* SAVED TRACKS LIBRARY */
+.saved-library {
+    margin-top: 1.1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 155px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.saved-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.saved-list::-webkit-scrollbar-thumb {
+    background: var(--neon-cyan);
+    border-radius: 4px;
+}
+
+.empty-library {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 0.4rem 0;
+}
+
+.saved-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    transition: 0.25s;
+}
+
+.saved-item:hover, .saved-item.playing-now {
+    border-color: var(--neon-cyan);
+    background: rgba(0, 243, 255, 0.08);
+}
+
+.saved-item-main {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-grow: 1;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.saved-play-icon {
+    color: var(--neon-cyan);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.saved-item-title {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.saved-item-tag {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.58rem;
+    color: #e2a9ff;
+    background: rgba(188, 19, 254, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.saved-item-actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-muted);
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: 0.2s;
+}
+
+.icon-btn.rename-btn:hover {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.icon-btn.delete-btn:hover {
+    border-color: #ff4d6d;
+    color: #ff4d6d;
+    background: rgba(255, 77, 109, 0.12);
 }
 
 /* SECTIONS GENERAL */
