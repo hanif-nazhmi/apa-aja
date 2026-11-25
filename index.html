@@ -1,1 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanif Nazhmi Rafiki — Sonic Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <!-- ENTERING ANIMATION / PRELOADER -->
+    <div id="preloader" class="preloader">
+        <div class="scanner-line"></div>
+        <div class="equalizer-loader">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="loader-text">
+            <span id="load-percent">0%</span> // BOOTING HNR AUDIO ENGINE
+        </div>
+        <button id="enter-btn" class="enter-btn hidden">INITIALIZE STUDIO</button>
+    </div>
+
+    <!-- BACKGROUND REAL-TIME AUDIO VISUALIZER -->
+    <canvas id="visualizer-canvas"></canvas>
+
+    <!-- HIDDEN FILE INPUT UNTUK UPLOAD LAGU MANUAL -->
+    <input type="file" id="manual-audio-input" accept="audio/*" hidden>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="logo">HNR<span class="accent">.WAV</span></div>
+        <ul class="nav-links">
+            <li><a href="#hero">01 // STUDIO</a></li>
+            <li><a href="#tracks">02 // TRACKLIST</a></li>
+            <li><a href="#about">03 // SPECTRUM</a></li>
+            <li><a href="#contact">04 // TRANSMIT</a></li>
+        </ul>
+        <button id="upload-nav-btn" class="upload-nav-btn">
+            <span>+ LOAD AUDIO</span>
+        </button>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <main>
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <div class="badge">● SYSTEM ONLINE // CREATIVE DEVELOPER & AUDIO ARCHITECT</div>
+                <h1 class="glitch-title">HANIF NAZHMI RAFIKI</h1>
+                <p class="subtitle">Meracik baris kode dan gelombang frekuensi menjadi pengalaman digital yang presisi, interaktif, dan futuristik.</p>
+                
+                <!-- FUTURISTIC MANUAL AUDIO DECK -->
+                <div class="audio-deck">
+                    <div class="deck-top">
+                        <div class="vinyl-disc" id="vinyl">
+                            <div class="vinyl-ring"></div>
+                            <div class="vinyl-center"></div>
+                        </div>
+                        
+                        <div class="track-meta">
+                            <div class="meta-header">
+                                <span class="track-label" id="deck-status">NO DISC LOADED</span>
+                                <span class="time-display" id="time-display">00:00 / 00:00</span>
+                            </div>
+                            <h3 id="current-track-title">Masukkan lagu MP3/WAV manual...</h3>
+                            
+                            <!-- INTERACTIVE SEEKBAR -->
+                            <div class="progress-bar" id="progress-container">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="deck-controls">
+                        <button id="play-pause-btn" class="control-btn primary" title="Play / Pause">▶ PLAY</button>
+                        <button id="load-track-btn" class="control-btn secondary" title="Pilih File Lagu dari Perangkat">📂 PILIH LAGU MANUAL</button>
+                        <div class="volume-control">
+                            <span>VOL</span>
+                            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS / TRACKLIST SECTION -->
+        <section id="tracks" class="section">
+            <div class="section-header">
+                <span class="sec-num">02</span>
+                <h2>PROJECT TRACKLIST // SELECT OR ASSIGN AUDIO</h2>
+            </div>
+
+            <div class="tracklist-container">
+                <!-- Track 1 -->
+                <div class="track-item" data-project="CyberSynth Web App">
+                    <div class="track-index">01</div>
+                    <div class="track-info">
+                        <h3>CyberSynth Web App</h3>
+                        <p>Interactive Web Audio API Synthesizer & Visual Engine</p>
+                    </div>
+                    <div class="track-tags">
+                        <span>JavaScript</span>
+                        <span>Web Audio</span>
+                    </div>
+                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                </div>
+
+                <!-- Track 2 -->
+                <div class="track-item" data-project="Aether AI Dashboard">
+                    <div class="track-index">02</div>
+                    <div class="track-info">
+                        <h3>Aether AI Dashboard</h3>
+                        <p>Futuristic Analytics & Neural Network Interface</p>
+                    </div>
+                    <div class="track-tags">
+                        <span>UI/UX</span>
+                        <span>Frontend</span>
+                    </div>
+                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                </div>
+
+                <!-- Track 3 -->
+                <div class="track-item" data-project="Pulse Beat Marketplace">
+                    <div class="track-index">03</div>
+                    <div class="track-info">
+                        <h3>Pulse Beat Marketplace</h3>
+                        <p>E-Commerce Platform for Independent Sound Designers</p>
+                    </div>
+                    <div class="track-tags">
+                        <span>Fullstack</span>
+                        <span>Audio</span>
+                    </div>
+                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                </div>
+
+                <!-- Track 4 -->
+                <div class="track-item" data-project="Hologram 3D Portfolio">
+                    <div class="track-index">04</div>
+                    <div class="track-info">
+                        <h3>Hologram 3D Portfolio</h3>
+                        <p>Experimental WebGL & Motion Graphics Showcase</p>
+                    </div>
+                    <div class="track-tags">
+                        <span>Creative Dev</span>
+                        <span>3D</span>
+                    </div>
+                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT / EQUALIZER STATS SECTION -->
+        <section id="about" class="section">
+            <div class="section-header">
+                <span class="sec-num">03</span>
+                <h2>FREQUENCY SPECTRUM // SKILLS</h2>
+            </div>
+            
+            <div class="about-grid">
+                <div class="about-bio">
+                    <p>Halo! Saya <strong>Hanif Nazhmi Rafiki</strong>. Seperti sebuah komposisi musik yang membutuhkan harmoni antara ritme, melodi, dan bass, saya membangun produk digital dengan menggabungkan arsitektur kode yang solid serta estetika visual futuristik.</p>
+                </div>
+
+                <div class="mixer-panel">
+                    <div class="fader-group">
+                        <div class="fader-track"><div class="fader-fill" style="height: 94%;"></div></div>
+                        <span>FRONTEND</span>
+                    </div>
+                    <div class="fader-group">
+                        <div class="fader-track"><div class="fader-fill" style="height: 86%;"></div></div>
+                        <span>UI/UX</span>
+                    </div>
+                    <div class="fader-group">
+                        <div class="fader-track"><div class="fader-fill" style="height: 90%;"></div></div>
+                        <span>AUDIO DEV</span>
+                    </div>
+                    <div class="fader-group">
+                        <div class="fader-track"><div class="fader-fill" style="height: 82%;"></div></div>
+                        <span>BACKEND</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="section contact-section">
+            <div class="section-header">
+                <span class="sec-num">04</span>
+                <h2>TRANSMIT SIGNAL // CONTACT</h2>
+            </div>
+            <p class="contact-desc">Siap berkolaborasi menciptakan karya atau proyek digital baru? Kirimkan sinyal Anda.</p>
+            <a href="mailto:hanif.rafiki@example.com" class="cta-btn">SEND TRANSMISSION ↗</a>
+            
+            <div class="socials">
+                <a href="#">GITHUB</a>
+                <a href="#">LINKEDIN</a>
+                <a href="#">SPOTIFY</a>
+                <a href="#">INSTAGRAM</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 HANIF NAZHMI RAFIKI. ALL FREQUENCIES RESERVED.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
