@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -76,10 +76,21 @@
 
                         <div class="deck-controls">
                             <button id="play-pause-btn" class="control-btn primary" title="Play / Pause">▶ PLAY</button>
-                            <button id="load-track-btn" class="control-btn secondary" title="Pilih File Lagu dari Perangkat">📂 PILIH LAGU MANUAL</button>
+                            <button id="load-track-btn" class="control-btn secondary" title="Pilih & Simpan Lagu Baru">📂 TAMBAH LAGU</button>
                             <div class="volume-control">
                                 <span>VOL</span>
                                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                            </div>
+                        </div>
+
+                        <!-- SAVED TRACKS LIBRARY (TERSIMPAN OTOMATIS) -->
+                        <div class="saved-library">
+                            <div class="library-header">
+                                <span>SAVED MEMORY BANK</span>
+                                <span id="saved-count">0 TRACKS</span>
+                            </div>
+                            <div class="saved-list" id="saved-tracks-list">
+                                <div class="empty-library">Belum ada lagu tersimpan. Klik "+ TAMBAH LAGU".</div>
                             </div>
                         </div>
                     </div>
@@ -88,7 +99,6 @@
                 <!-- KOLOM KANAN: INISIAL NAZHMI DIPUTARI ELEMEN MUSIK CYBER -->
                 <div class="cyber-emblem-wrapper">
                     <div class="cyber-orbit-system" id="cyber-emblem">
-                        <!-- Cincin Luar Teks Melingkar -->
                         <svg class="orbit-text-ring" viewBox="0 0 300 300">
                             <defs>
                                 <path id="circlePath" d="M 150, 150 m -120, 0 a 120,120 0 1,1 240,0 a 120,120 0 1,1 -240,0" />
@@ -100,12 +110,10 @@
                             </text>
                         </svg>
 
-                        <!-- Cincin Neon Putus-Putus -->
                         <div class="ring ring-outer"></div>
                         <div class="ring ring-middle"></div>
                         <div class="ring ring-inner"></div>
 
-                        <!-- Elemen Musik Cyber yang Mengorbit -->
                         <div class="orbit-nodes">
                             <span class="music-node node-1">♪</span>
                             <span class="music-node node-2">♫</span>
@@ -113,7 +121,6 @@
                             <span class="music-node node-4">◈</span>
                         </div>
 
-                        <!-- Inti Tengah: Inisial NAZHMI -->
                         <div class="initial-core">
                             <span class="initial-sub">INIT //</span>
                             <div class="initial-letters">NZM</div>
@@ -257,6 +264,6 @@
         }, 1800);
     </script>
 
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
