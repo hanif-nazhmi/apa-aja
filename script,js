@@ -1,28 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================
-       1. ENTERING ANIMATION (PRELOADER)
+       1. ENTERING ANIMATION (AUTO-CLOSE + FAILSAFE)
     ========================================== */
     const preloader = document.getElementById('preloader');
     const loadPercent = document.getElementById('load-percent');
-    const enterBtn = document.getElementById('enter-btn');
     
+    function finishPreloader() {
+        if (!preloader || preloader.classList.contains('fade-out')) return;
+        preloader.classList.add('fade-out');
+        document.body.classList.add('loaded');
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 950);
+    }
+
     let progress = 0;
     const bootInterval = setInterval(() => {
-        progress += Math.floor(Math.random() * 14) + 5;
+        progress += Math.floor(Math.random() * 18) + 8;
         if (progress >= 100) {
             progress = 100;
             clearInterval(bootInterval);
-            loadPercent.textContent = '100%';
-            enterBtn.classList.remove('hidden');
+            if (loadPercent) loadPercent.textContent = '100%';
+            setTimeout(finishPreloader, 350);
         } else {
-            loadPercent.textContent = `${progress}%`;
+            if (loadPercent) loadPercent.textContent = `${progress}%`;
         }
-    }, 75);
+    }, 65);
 
-    enterBtn.addEventListener('click', () => {
-        preloader.classList.add('fade-out');
-        document.body.classList.add('loaded');
-    });
+    // Failsafe: paksa tutup loading screen maksimal dalam 3 detik
+    setTimeout(finishPreloader, 3000);
 
     /* ==========================================
        2. MANUAL AUDIO LOADER & REAL-TIME ANALYSER
@@ -192,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderVisualizer() {
         ctx.clearRect(0, 0, width, height);
 
-        // Grid futuristik tipis
         ctx.strokeStyle = 'rgba(0, 243, 255, 0.03)';
         ctx.lineWidth = 1;
         for (let x = 0; x < width; x += 65) {
@@ -202,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
         }
 
-        // Jika lagu sedang diputar, gambar spektrum frekuensi asli dari lagu manual
         if (analyser && !audioPlayer.paused) {
             analyser.getByteFrequencyData(dataArray);
             const barCount = dataArray.length;
@@ -220,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 x += barWidth;
             }
         } else {
-            // Animasi gelombang standby jika belum ada lagu diputar
             ctx.beginPath();
             ctx.strokeStyle = 'rgba(0, 243, 255, 0.18)';
             ctx.lineWidth = 2;
