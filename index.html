@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -92,7 +92,6 @@
             </div>
 
             <div class="tracklist-container">
-                <!-- Track 1 -->
                 <div class="track-item" data-project="CyberSynth Web App">
                     <div class="track-index">01</div>
                     <div class="track-info">
@@ -103,10 +102,9 @@
                         <span>JavaScript</span>
                         <span>Web Audio</span>
                     </div>
-                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                    <button class="assign-audio-btn">+ AUDIO</button>
                 </div>
 
-                <!-- Track 2 -->
                 <div class="track-item" data-project="Aether AI Dashboard">
                     <div class="track-index">02</div>
                     <div class="track-info">
@@ -117,10 +115,9 @@
                         <span>UI/UX</span>
                         <span>Frontend</span>
                     </div>
-                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                    <button class="assign-audio-btn">+ AUDIO</button>
                 </div>
 
-                <!-- Track 3 -->
                 <div class="track-item" data-project="Pulse Beat Marketplace">
                     <div class="track-index">03</div>
                     <div class="track-info">
@@ -131,10 +128,9 @@
                         <span>Fullstack</span>
                         <span>Audio</span>
                     </div>
-                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                    <button class="assign-audio-btn">+ AUDIO</button>
                 </div>
 
-                <!-- Track 4 -->
                 <div class="track-item" data-project="Hologram 3D Portfolio">
                     <div class="track-index">04</div>
                     <div class="track-info">
@@ -145,7 +141,7 @@
                         <span>Creative Dev</span>
                         <span>3D</span>
                     </div>
-                    <button class="assign-audio-btn" title="Muat lagu manual ke slot ini">+ AUDIO</button>
+                    <button class="assign-audio-btn">+ AUDIO</button>
                 </div>
             </div>
         </section>
@@ -205,6 +201,20 @@
         <p>© 2026 HANIF NAZHMI RAFIKI. ALL FREQUENCIES RESERVED.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- INLINE GUARD: Memastikan preloader tidak pernah macet -->
+    <script>
+        setTimeout(function() {
+            var p = document.getElementById('preloader');
+            if (p) {
+                p.style.opacity = '0';
+                p.style.transform = 'translateY(-100%)';
+                p.style.pointerEvents = 'none';
+                document.body.classList.add('loaded');
+                setTimeout(function() { p.remove(); }, 900);
+            }
+        }, 1800);
+    </script>
+
+    <script src="script.js?v=3"></script>
 </body>
 </html>
